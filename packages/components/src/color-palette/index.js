@@ -22,21 +22,27 @@ export default function ColorPalette( {
 	onChange,
 	value,
 } ) {
+	const clearColor = useCallback(
+		() => onChange( undefined ),
+		[ onChange ]
+	);
 	const colorOptions = useMemo(
 		() => {
-			function applyOrUnset( color ) {
-				return () => onChange( value === color ? undefined : color );
-			}
 			return map( colors, ( { color, name } ) => (
 				<CircularOptionPicker.Option
 					key={ color }
+					value={ color }
 					isSelected={ value === color }
 					tooltipText={ name ||
 						// translators: %s: color hex code e.g: "#f00".
 						sprintf( __( 'Color code: %s' ), color )
 					}
 					style={ { color } }
-					onClick={ applyOrUnset( color ) }
+					onClick={
+						value === color ?
+							clearColor :
+							() => ( onChange( color ) )
+					}
 					aria-label={ name ?
 						// translators: %s: The name of the color e.g: "vivid red".
 						sprintf( __( 'Color: %s' ), name ) :
@@ -46,7 +52,7 @@ export default function ColorPalette( {
 				/>
 			) );
 		},
-		[ colors, value, onChange ]
+		[ colors, value, onChange, clearColor ]
 	);
 	const renderCustomColorPicker = useCallback(
 		() => (
@@ -57,10 +63,6 @@ export default function ColorPalette( {
 			/>
 		),
 		[ value ]
-	);
-	const clearColor = useCallback(
-		() => onChange( undefined ),
-		[ onChange ]
 	);
 
 	return (
